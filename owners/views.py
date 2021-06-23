@@ -20,7 +20,6 @@ class OwnerListView(View):
             dogs = owner.dog_set.all()
             dog_list = []
             for dog in dogs:
-                dogs = owner.dog_set.all()
                 dog_info = (
                     {
                         'name': dog.name,
