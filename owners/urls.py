@@ -1,6 +1,6 @@
 from django.urls    import path
 
-from owners.views import OwnerListView, DogListView
+from .views import OwnerListView, DogListView
 
 urlpatterns = [
     path('/owners', OwnerListView.as_view()),
