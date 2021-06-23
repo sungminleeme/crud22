@@ -1,15 +1,23 @@
+# python 내장 라이브러리
 import json
 
-from django.http import JsonResponse
+# 외부 라이브러리
+from django.http  import JsonResponse
 from django.views import View
+
+# Custom 해서 만든 모듈 또는 페키지
 from .models import Owner, Dog
 
 class OwnerListView(View):
     def post(self, request):
         data = json.loads(request.body)
-        Owner.objects.create(name=data['name'],
-                            email=data['email'],
-                            age=data['age'])
+
+        Owner.objects.create(
+            name  = data['name'],
+            email = data['email'],
+            age   = data['age']
+        )
+
         return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
     def get(self, request):
@@ -17,38 +25,53 @@ class OwnerListView(View):
         result = []
 
         for owner in owners:
-            dogs = owner.dog_set.all()
-            dog_list = []
-            for dog in dogs:
-                dog_info = (
-                    {
-                        'name': dog.name,
-                        'age': dog.age
-                    }
-                )
-                dog_list.append(dog_info)
-
             result.append(
                 {
-				'email' : owner.email,
-				'name'  : owner.name,
-				'age'   : owner.age,
-				'my_dogs': dog_list
+                    "owner" : {
+                        "name"  : owner.name,
+                        "email" : owner.email,
+			"age"   : owner.age,
+                        "dogs"  : [{
+                            "name" : dog.name, 
+                            "age" : dog.age
+                        } for dog in owner.dog_set.all()]
+                    }
                 }
             )
 
-            
+        return JsonResponse({'result': result}, status=200)
 
-        return JsonResponse({'result': result}, status=200)   
+##### 2nd list comphrehension
+
+#        result = [
+#            {
+#                "owner" : {
+#                    "name"  : owner.name,
+#                    "email" : owner.email,
+#                    "age"   : owner.age,
+#                    "dogs"  : [{
+#                        "name" : dog.name, 
+#                        "age" : dog.age
+#                    } for dog in owner.dog_set.all()]
+#                }
+#            }
+#        ]
+#
+
 
 class DogListView(View):
     def post(self, request):
-        data = json.loads(request.body)
-        owner = Owner.objects.get(email=data['owner'])
-        Dog.objects.create(name=data['name'],
-                           age=data['age'],
-                           owner=owner
-        )  
+        """
+        INPUT : owner_id, dog_name, dog_age
+        """
+        data  = json.loads(request.body)
+
+        Dog.objects.create(
+            name     = data['dog_name'],
+            age      = data['dog_age'],
+            owner_id = data['owner_id']
+        )
+
         return JsonResponse({'message':'SUCCESS'}, status=201)
 
     
@@ -64,13 +87,5 @@ class DogListView(View):
               'owner': dog.owner.name
             }
           )
+
         return JsonResponse({'MESSAGE': result}, status=200)    
-                          
-
-
-
-	
-
-
-
-        
